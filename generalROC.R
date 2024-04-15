@@ -110,13 +110,7 @@ roc.df.plant <- data.frame(
   fpp=(1 - roc.info.plant$specificities)*100, ## fpp = false positive precentage
   thresholds=roc.info.plant$thresholds)
 
-roc.df.plant [roc.df.plant$thresholds > 0.40 & roc.df.plant$thresholds < 1,]
-
-
-
-
-
-
+roc.df.plant [roc.df.plant$tpp > 90 & roc.df.plant$tpp < 95,]
 
 #final plot
 

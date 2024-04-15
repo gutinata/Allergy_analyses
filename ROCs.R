@@ -70,6 +70,10 @@ roc.df[roc.df$tpp > 70 & roc.df$tpp < 90,]
   #78 77.45192  0.4273504  0.6810743 
   #79 76.53846  0.0000000  0.7002112 *******
 
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #86.15385 14.52991  0.3559796
+
 #Final plot
 
 par(mfcol=c(1,2), pty = "s", mar = c(5.3, 4, 3.3, 2))
@@ -84,6 +88,7 @@ roc(tropomyosin_nf$allergenic, glm.fit$fitted.values,
 points(100, 76.53846, pch = 19)
 text(98, 76.53846, paste("Threshold %ID value: 70% \nTrue positives: 76.5% \nFalse positives: 0%"), adj = c(0,1))
 text(30, 20, "Area under the curve: 93.53%")
+
 
 
 
@@ -112,6 +117,7 @@ tim <- na.omit(tim)
 
 #order data frame by identity values
 tim <- tim[order(tim$identity), ]
+
 
 #fit binomial
 glm.fit=glm(tim$allergenic~tim$identity, family = binomial)
@@ -217,6 +223,10 @@ roc.df[roc.df$tpp > 90 & roc.df$tpp < 100,]
 #84.15584    0.07440476  0.956061208
 #84.09091    0.00000000  0.961024617 
 #94.09091     1.4136905  0.708771493 *****
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #96.75325 4.836310  0.3561168
 
 #Final plot
 
@@ -355,24 +365,23 @@ summary(glm.fit)
 #argkin$identity   0.52822    0.05399   9.783   <2e-16 ***
 #AIC: 99.231
 
-
-library("logistf")
-glm.fit=logistf(argkin$allergenic~argkin$identity)
-str(glm.fit)
-
-glm.fit$predict
+#Try with a different model/library
+#library("logistf")
+#glm.fit=logistf(argkin$allergenic~argkin$identity)
+#str(glm.fit)
+#glm.fit$predict
 
 #plot data and model fit results
 plot(argkin$identity, argkin$allergenic,
      xlab = "% identity", ylab = "0:Non-Allergenic; 1:Allergenic")
-lines(argkin$identity, glm.fit$predict)
+lines(argkin$identity, glm.fit$fitted.values)
 
 #find ROC and plot it
-roc(argkin$allergenic, glm.fit$predict, 
+roc(argkin$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %")
 
 #store ROC in a variable to find the optimal threshold value
-roc.info <- roc(argkin$allergenic, glm.fit$predict, legacy.axes=TRUE)
+roc.info <- roc(argkin$allergenic, glm.fit$fitted.values, legacy.axes=TRUE)
 #702(+1) controls (allergenic 0) > 325(+1) cases (allergenic 1)
 #Area under the curve: 99.55%
 
@@ -393,6 +402,10 @@ roc.df[roc.df$thresholds > 0 & roc.df$thresholds < 1,]
 #98.15951 0.1422475  0.7261914
 #97.85276 0.1422475  0.7464258
 
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #99.693252  0.2844950 0.281467874
+
 #Final plot
 
 par(mfcol=c(1,2), pty = "s", mar = c(4.6, 4, 2.6, 2))
@@ -404,9 +417,10 @@ text(80, 0.5, paste("P-value: ", round(summary(glm.fit)$coefficients[2,4],4)))
 
 roc(argkin$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
-points(100, 99.38650, pch = 19)
+points(99.38650, 100, pch = 19)
 text(98, 99.38650, paste("Threshold %ID value: 65% \nTrue positives: 99.4% \nFalse positives: 0.1%"), adj = c(0,1))
 text(30, 20, "Area under the curve: 99.55%")
+
 
 
 ############
@@ -461,7 +475,7 @@ roc(caseina$allergenic, glm.fit$fitted.values,
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %")
 
 #store ROC in a variable to find the optimal threshold value
-roc.info <- roc(caseinb$allergenic, glm.fit$fitted.values, legacy.axes=TRUE)
+roc.info <- roc(caseina$allergenic, glm.fit$fitted.values, legacy.axes=TRUE)
 #141 controls (allergenic 0) < 46 cases (allergenic 1)
 #Area under the curve: 97.14%
 
@@ -475,9 +489,15 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.50 & roc.df$thresholds < 0.99,]
-#   tpp   fpp       thresholds
-#90.68100 1.1389522  0.6404182
-#89.96416 1.1389522  0.6538169****
+  #   tpp   fpp       thresholds
+  #90.68100 1.1389522  0.6404182
+  #89.96416 1.1389522  0.6538169****
+
+roc.df[roc.df$thresholds >  0 & roc.df$thresholds < 0.99,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #97.82609  0.7092199 0.470824675
+  #min identity is ~40% so no point estimating 35%
+
 
 #Final plot
 
@@ -490,9 +510,10 @@ text(80, 0.5, paste("P-value: ", round(summary(glm.fit)$coefficients[2,4],4)))
 
 roc(caseina$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
-points(100, 89.96416, pch = 19)
-text(98, 89.96416, paste("Threshold %ID value:65% \nTrue positives: 90% \nFalse positives: 1.1%"), adj = c(0,1))
+points(100, (100-1.1389522), pch = 19)
+text(89.96416, 89.96416, paste("Threshold %ID value:65% \nTrue positives: 90% \nFalse positives: 1.1%"), adj = c(0,1))
 text(30, 20, "Area under the curve: 97.14%")
+
 
 ############
 #Casein beta
@@ -560,9 +581,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.99,]
-#   tpp   fpp       thresholds
-#97.29730 0.7352941  0.4569704
-#91.89189 0.7352941  0.8783868****
+  #   tpp   fpp       thresholds
+  #97.29730 0.7352941  0.4569704
+  #91.89189 0.7352941  0.8783868****
+
+roc.df[roc.df$thresholds >  0 & roc.df$thresholds < 0.9,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #97.29730   0.7352941 0.4569704128
+  #min identity is ~60% so no point estimating 35%
 
 #Final plot
 
@@ -575,9 +601,10 @@ text(80, 0.5, paste("P-value: ", round(summary(glm.fit)$coefficients[2,4],4)))
 
 roc(caseinb$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
-points(100, 91.89189, pch = 19)
+points(91.89189, (100 - 0.7352941), pch = 19)
 text(98, 91.89189, paste("Threshold %ID value: 87% \nTrue positives: 92% \nFalse positives: 0.7%"), adj = c(0,1))
 text(30, 20, "Area under the curve: 96.58%")
+
 
 #############
 #Vicilin 7SC
@@ -644,9 +671,13 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.70,]
-#   tpp   fpp       thresholds
-#99.17355 1.581028  0.5461722
-#98.96694 1.581028  0.6466486
+  #   tpp   fpp       thresholds
+  #99.17355 1.581028  0.5461722
+  #98.96694 1.581028  0.6466486
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #99.17355 2.766798  0.3780110
 
 #Final plot
 
@@ -659,10 +690,12 @@ text(80, 0.5, paste("P-value: ", round(summary(glm.fit)$coefficients[2,4],4)))
 
 roc(vicilin7SC$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
-points(98, 99.17355, pch = 19)
-points(98, 98.96694, pch = 19)
+points(99.17355, (100 - 1.581028),  pch = 19)
+points(98.96694, (100 - 1.581028),  pch = 19)
 text(96, 94.26523, paste("Threshold %ID values: 55% / 65% \nTrue positives: 99% / 98% \nFalse positives: 1.6%"), adj = c(0,1))
 text(40, 20, "Area under the curve: 99.57%")
+
+
 
 #############
 #Vicilin 7SN
@@ -729,9 +762,12 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.70,]
-#   tpp   fpp       thresholds
-#92.70588 7.531381  0.5618208******
+  #   tpp   fpp       thresholds
+  #92.70588 7.531381  0.5618208******
 
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #96.70588 9.205021  0.3511251
 
 #Final plot
 
@@ -744,9 +780,10 @@ text(80, 0.5, paste("P-value: ", round(summary(glm.fit)$coefficients[2,4],4)))
 
 roc(vicilin7SN$allergenic, glm.fit$fitted.values, 
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
-points(93, 92.70588, pch = 19)
+points(92.70588, (100 - 7.531381), pch = 19)
 text(91, 92.70588, paste("Threshold %ID value: 55% \nTrue positives: 92% \nFalse positives: 7.5%"), adj = c(0,1))
 text(40, 20, "Area under the curve: 96%")
+
 
 ###########
 #2S albumin
@@ -814,9 +851,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.70 & roc.df$thresholds < 0.80,]
-#   tpp   fpp       thresholds
-#70.40816 1.179245  0.4001057****
-#66.32653 1.179245  0.4672287
+  #   tpp   fpp       thresholds
+  #70.40816 1.179245  0.4001057****
+  #66.32653 1.179245  0.4672287
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #70.40816 1.29717  0.3364538
+
 
 #Final plot
 
@@ -899,9 +941,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$tpp > 60 & roc.df$tpp < 80,]
-#   tpp   fpp       thresholds
-#71.73913   0  0.4324693
-#69.56522   0  0.4601106*******
+  #   tpp   fpp       thresholds
+  #71.73913   0  0.4324693
+  #69.56522   0  0.4601106*******
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #73.91304   0  0.3616588
+
 
 #Final plot
 
@@ -984,9 +1031,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.60 & roc.df$thresholds < 0.90,]
-#   tpp   fpp       thresholds
-#86.11111 2.013423  0.6083040*******
-#84.25926 2.013423  0.6452237
+  #   tpp   fpp       thresholds
+  #86.11111 2.013423  0.6083040*******
+  #84.25926 2.013423  0.6452237
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #98.14815 4.026846  0.3685744
+
 
 #Final plot
 
@@ -1077,9 +1129,15 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.60 & roc.df$thresholds < 0.90,]
-#   tpp       fpp       thresholds
-#     70 3.571429  0.6385076****
-#     60 3.571429  0.7241790
+  #   tpp       fpp       thresholds
+  #     70 3.571429  0.6385076****
+  #     60 3.571429  0.7241790
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #90 10.71429  0.3729836
+
+
 #Final plot
 
 par(mfcol=c(1,2), pty = "s", mar = c(4.1, 4, 2.1, 2))
@@ -1239,9 +1297,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.90,]
-#tpp   fpp       thresholds
-#83.90558 2.08457415  0.4762183
-#79.82833 1.13162597  0.5067899****
+  #tpp   fpp       thresholds
+  #83.90558 2.08457415  0.4762183
+  #79.82833 1.13162597  0.5067899****
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #86.69528 4.526504  0.3482661
+
 
 #Final plot
 
@@ -1326,9 +1389,13 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 45 & roc.df$thresholds < 75,]
-#     tpp       fpp thresholds
-#98.507463   1.639344 0.46191293
-#95.522388   1.639344 0.88047081*****
+  #     tpp       fpp thresholds
+  #98.507463   1.639344 0.46191293
+  #95.522388   1.639344 0.88047081*****
+
+roc.df[roc.df$thresholds >  0 & roc.df$thresholds < 0.9,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #98.50746  1.639344 0.46191293
 
 #Final plot
 
@@ -1411,9 +1478,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.90,]
-#tpp   fpp       thresholds
-#24.3772242 1.34469924  0.4029718****
-#24.3772242 1.30868051  0.4103415
+  #tpp   fpp       thresholds
+  #24.3772242 1.34469924  0.4029718****
+  #24.3772242 1.30868051  0.4103415
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #25.26690 1.788930  0.3539941
+
 
 #Final plot
 
@@ -1495,8 +1567,13 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.40 & roc.df$thresholds < 0.90,]
-#tpp   fpp       thresholds
-#80.78541 2.8944547  0.6576530***
+  #tpp   fpp       thresholds
+  #80.78541 2.8944547  0.6576530***
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #86.71809 11.110028  0.3499102
+
 
 #Final plot
 
@@ -1591,7 +1668,7 @@ roc(cyc$allergenic, glm.fit$fitted.values,
     plot = T, legacy.axes = T, percent = T, xlab = "False positive %", ylab ="True positive %", main = "ROC curve")
 #points(100, 99.38650, pch = 19)
 #text(98, 99.38650, paste("Threshold %ID value: 65% \nTrue positives: 99.4% \nFalse positives: 0.1%"), adj = c(0,1))
-text(30, 20, "Area under the curve: 99.55%")
+text(30, 20, "Area under the curve: 50.42%")
 
 
 
@@ -1660,9 +1737,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$thresholds > 0.60 & roc.df$thresholds < 1.00,]
-#tpp   fpp       thresholds
-# 75.00 0.9615385  0.6156309****
-# 68.75 0.9615385  0.7123951
+  #tpp   fpp       thresholds
+  # 75.00 0.9615385  0.6156309****
+  # 68.75 0.9615385  0.7123951
+
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #75 3.846154  0.3510188
+
 
 #Final plot
 
@@ -1826,10 +1908,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$tpp > 80 & roc.df$tpp < 100,]
+  #   tpp   fpp       thresholds
+  #87.50 1.818182  0.8391042***
+  #81.25 1.818182  0.8529859
 
-#   tpp   fpp       thresholds
-#87.50 1.818182  0.8391042***
-#81.25 1.818182  0.8529859
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #93.75   1.818182 0.443971064
+
 
 
 #Final plot
@@ -1915,11 +2001,13 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$tpp > 80 & roc.df$tpp < 100,]
+  #   tpp   fpp       thresholds
+  #95.45455  3.448276 0.49365062***
+  #90.90909  3.448276 0.91056454
 
-#   tpp   fpp       thresholds
-#95.45455  3.448276 0.49365062***
-#90.90909  3.448276 0.91056454
-
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+#     tpp        fpp thresholds
+#95.454545   3.448276 0.49365062
 
 #Final plot
 
@@ -2005,10 +2093,14 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$tpp > 80 & roc.df$tpp < 100,]
+  #   tpp   fpp       thresholds
+  #93.75   2.325581 0.42598430
+  #87.50   2.325581 0.72480923****
 
-#   tpp   fpp       thresholds
-#93.75   2.325581 0.42598430
-#87.50   2.325581 0.72480923****
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #93.75   2.325581 0.42598430
+
 
 
 #Final plot
@@ -2093,11 +2185,13 @@ head(roc.df)
 tail(roc.df)
 
 roc.df[roc.df$tpp > 80 & roc.df$tpp < 100,]
+  #   tpp   fpp       thresholds
+  #90.90909 2.173913  0.7281103***
+  #81.81818 2.173913  0.7373619
 
-#   tpp   fpp       thresholds
-#90.90909 2.173913  0.7281103***
-#81.81818 2.173913  0.7373619
-
+roc.df[roc.df$thresholds >  0.30 & roc.df$thresholds < 0.40,] #tpp and fpp at 35%
+  #     tpp        fpp thresholds
+  #90.90909 2.173913  0.3900608
 
 
 #Final plot
